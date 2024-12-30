@@ -13,7 +13,7 @@ Chip8::~Chip8() {}
 
 bool Chip8::loadRom(char const* f)
 {
-    ifstream file(f, ios::binary);
+    ifstream file(f, ios::ate | ios::binary);
 
     if ( file.bad() )
     {
@@ -33,4 +33,7 @@ bool Chip8::loadRom(char const* f)
     {
         memory[START_ADDR + i] = buf[i]; // Load data from buffer into chip memory
     }
+
+    cout << "Successfully loaded file: '" << f << "' of size " << size << endl;
+    return true;
 }

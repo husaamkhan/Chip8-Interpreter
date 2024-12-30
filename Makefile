@@ -1,5 +1,5 @@
 output: main.o Chip8.o
-	g++ main.o chip8.o -o output
+	g++ main.o Chip8.o -o output
 
 main.o: main.cpp
 	g++ -c main.cpp

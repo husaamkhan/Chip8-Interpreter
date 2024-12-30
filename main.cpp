@@ -3,7 +3,7 @@
 int main(int argc, char* argv[])
 {
     Chip8* chip8 = new Chip8();
-    bool success = chip8->loadRom(argv[0];
+    bool success = chip8->loadRom(argv[1]);
     
     if ( !success )
     {
