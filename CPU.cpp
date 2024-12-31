@@ -1,17 +1,17 @@
-#include "Chip8.h"
+#include "CPU.h"
 
 #include <fstream>
 #include <iostream>
 #include <vector>
 
-Chip8::Chip8()
+CPU::CPU()
 {
     pc = START_ADDR;
 }
 
-Chip8::~Chip8() {}
+CPU::~CPU() {}
 
-bool Chip8::loadRom(char const* f)
+bool CPU::loadRom(char const* f)
 {
     ifstream file(f, ios::ate | ios::binary);
 
@@ -23,7 +23,7 @@ bool Chip8::loadRom(char const* f)
 
     // Create buffer for file contents
     streampos size = file.tellg();
-    auto buf = new char[size];
+    char* buf = new char[size];
 
     file.seekg(0, ios::beg);    // Return to start of file
     file.read(buf, size);       // Read data from file into buffer
@@ -34,6 +34,7 @@ bool Chip8::loadRom(char const* f)
         memory[START_ADDR + i] = buf[i]; // Load data from buffer into chip memory
     }
 
+    delete[] buf;
     cout << "Successfully loaded file: '" << f << "' of size " << size << endl;
     return true;
 }
