@@ -14,16 +14,12 @@ class Interface
         Interface(char* title, int w_window, int h_window, int w_texture, int h_texture);
         ~Interface();
 
-        void refresh();
+        void refreshDisplay(char* pixels, int pitch);
 
     private:
         SDL_Window* window;
         SDL_Renderer* renderer;
         SDL_Texture* texture;
-
-        // The display that was originally supported by the Chip-8
-        const unsigned int X = 64;
-        const unsigned int Y = 32;
 };
 
 #endif // INTERFACE_H

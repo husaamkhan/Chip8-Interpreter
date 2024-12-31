@@ -26,3 +26,11 @@ Interface::~Interface()
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
+
+void Interface::refreshDisplay(char* pixels, int pitch)
+{
+    SDL_UpdateTexture(texture, nullptr, pixels, pitch);
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+    SDL_RenderPresent(renderer);
+}

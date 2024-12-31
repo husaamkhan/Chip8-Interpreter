@@ -69,107 +69,131 @@ bool CPU::loadRom(char const* f)
     return true;
 }
 
-void SYS_ADDR()
+// Clears display
+void CPU::CLS()
+{
+    for ( int i = 0; i < (64*32); i++ ) // Sets entire video buffer to 0
+    {
+        display[i] = 0;
+    }
+}
+
+// Return from subroutine
+void CPU::RET()
+{
+    pc = stack[sp]; // Set program counter to address at top of stack
+    sp--;           // Decrement stack pointer
+}
+
+// Jump to location nnn
+void CPU::JP_ADDR()
+{
+    pc = opcode & 0x0FFF; // Set program counter to nnn, which is extracted from opcode by applying a bitmask
+}
+
+// Call subroutine at nnn
+void CPU::CALL_ADDR()
+{
+    sp++;
+    stack[sp] = pc;         // Puts program counter at the top of stack
+    pc = opcode & 0x0FFF;   // Set program counter to nnn, which is extracted from opcode by applying a bitmask
+}
+
+// Skip next instruction if Vx = kk
+void CPU::SE_Vx_BYTE()
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;   // Get register Vx by applying bitmask and shifting
+    uint8_t byte = opcode & 0x00FF;
+
+    if ( registers[Vx] == byte )
+    {
+        pc += 2;
+    }
+}
+
+void CPU::SNE_Vx_BYTE()
 {}
 
-void CLS()
+void CPU::SE_Vx_Vy()
 {}
 
-void RET()
+void CPU::LD_Vx_BYTE()
 {}
 
-void JP_ADDR()
+void CPU::ADD_Vx_BYTE()
 {}
 
-void CALL_ADDR()
+void CPU::LD_Vx_Vy()
 {}
 
-void SE_Vx_BYTE()
+void CPU::OR_Vx_Vy()
 {}
 
-void SNE_Vx_BYTE()
+void CPU::AND_Vx_Vy()
 {}
 
-void SE_Vx_Vy()
+void CPU::XOR_Vx_Vy()
 {}
 
-void LD_Vx_BYTE()
+void CPU::ADD_Vx_Vy()
 {}
 
-void ADD_Vx_BYTE()
+void CPU::SUB_Vx_Vy()
 {}
 
-void LD_Vx_Vy()
+void CPU::SHR_Vx_Vy()
 {}
 
-void OR_Vx_Vy()
+void CPU::SUBN_Vx_Vy()
 {}
 
-void AND_Vx_Vy()
+void CPU::SHL_Vx_Vy()
 {}
 
-void XOR_Vx_Vy()
+void CPU::SNE_Vx_Vy()
 {}
 
-void ADD_Vx_Vy()
+void CPU::LD_I_ADDR()
 {}
 
-void SUB_Vx_Vy()
+void CPU::JP_V0_ADDR()
 {}
 
-void SHR_Vx_Vy()
+void CPU::RND_Vx_BYTE()
 {}
 
-void SUBN_Vx_Vy()
+void CPU::DRW_Vx_Vy_NIBBLE()
 {}
 
-void SHL_Vx_Vy()
+void CPU::SKP_Vx()
 {}
 
-void SNE_Vx_Vy()
+void CPU::SKNP_Vx()
 {}
 
-void LD_I_ADDR()
+void CPU::LD_Vx_DT()
 {}
 
-void JP_V0_ADDR()
+void CPU::LD_Vx_K()
 {}
 
-void RND_Vx_BYTE()
+void CPU::LD_DT_Vx()
 {}
 
-void DRW_Vx_Vy_NIBBLE()
+void CPU::LD_ST_Vx()
 {}
 
-void SKP_Vx()
+void CPU::ADD_I_Vx()
 {}
 
-void SKNP_Vx()
+void CPU::LD_F_Vx()
 {}
 
-void LD_Vx_DT()
+void CPU::LD_B_Vx()
 {}
 
-void LD_Vx_K()
+void CPU::LD_I_Vx()
 {}
 
-void LD_DT_Vx()
-{}
-
-void LD_ST_Vx()
-{}
-
-void ADD_I_Vx()
-{}
-
-void LD_F_Vx()
-{}
-
-void LD_B_Vx()
-{}
-
-void LD_I_Vx()
-{}
-
-void LD_Vx_I()
+void CPU::LD_Vx_I()
 {}

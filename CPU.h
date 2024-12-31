@@ -1,3 +1,9 @@
+/*
+    --CPU class--
+    Purpose: All Chip-8 processing functionality
+*/
+
+
 #ifndef CPU_H
 #define CPU_H
 
@@ -15,7 +21,6 @@ class CPU
         bool loadRom(char const* f);
 
         // Standard Chip-8 instructions
-        void SYS_ADDR();
         void CLS();
         void RET();
         void JP_ADDR();
