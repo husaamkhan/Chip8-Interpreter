@@ -11,6 +11,7 @@ class CPU
         CPU();
         ~CPU();
         
+        void loadFont();
         bool loadRom(char const* f);
 
         // Standard Chip-8 instructions
@@ -52,7 +53,7 @@ class CPU
 
     private:
         uint8_t registers[16];      // 16 8-bit general purpose registers
-        uint8_t memory[4096];          // 4KB of RAM
+        uint8_t memory[4096];       // 4KB of RAM
         uint8_t dt;                 // Special purpose 8-bit register for delay timer
         uint8_t st;                 // Special purpose 8-bit register for sound timer
         uint16_t pc;                // 16-bit program counter
@@ -62,7 +63,9 @@ class CPU
         uint32_t display[64*32];    // 64x32 pixel display
         uint16_t opcode;            // 16-bit opcode
 
-        const unsigned int START_ADDR = 0x200; // Start of most Chip-8 programs
+        const unsigned int START_ADDR = 0x200;  // Start of most Chip-8 programs
+        const unsigned int FONT_ADDR = 0x00;    // Start of font set
+        const unsigned int FONT_SIZE = 80;      // 16 total characters, each represented with 5 bytes
 };
 
 #endif // CPU_H
