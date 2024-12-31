@@ -1,14 +1,15 @@
-#include "Chip8.h"
+#include "CPU.h"
 
 int main(int argc, char* argv[])
 {
-    Chip8* chip8 = new Chip8();
-    bool success = chip8->loadRom(argv[1]);
+    CPU* cpu = new CPU();
+    bool success = cpu->loadRom(argv[1]);
     
     if ( !success )
     {
         return 0;
     }
 
+    delete cpu;
     return 0;
 }
