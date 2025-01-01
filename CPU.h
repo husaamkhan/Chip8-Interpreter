@@ -58,13 +58,14 @@ class CPU
 
     private:
         uint8_t registers[16];      // 16 8-bit general purpose registers
+        uint16_t I;                // 16-bit register called I
         uint8_t memory[4096];       // 4KB of RAM
         uint8_t dt;                 // Special purpose 8-bit register for delay timer
         uint8_t st;                 // Special purpose 8-bit register for sound timer
         uint16_t pc;                // 16-bit program counter
         uint8_t sp;                 // 8-bit stack pointer
         uint16_t stack[16];         // 16 16-bit values in stack
-        uint8_t keypad[16];         // 16-key hexadecimal keypad
+        uint8_t keys[16];         // 16-key hexadecimal keypad
         uint32_t display[64*32];    // 64x32 pixel display
         uint16_t opcode;            // 16-bit opcode
 

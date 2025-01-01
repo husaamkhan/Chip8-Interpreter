@@ -14,7 +14,7 @@ class Interface
         Interface(char* title, int w_window, int h_window, int w_texture, int h_texture);
         ~Interface();
 
-        void refreshDisplay(char* pixels, int pitch);
+        void refreshDisplay(char* pixels);
 
     private:
         SDL_Window* window;

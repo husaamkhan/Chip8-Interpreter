@@ -39,6 +39,10 @@ void CPU::loadFont()
     {
         memory[FONT_ADDR+i] = bytes[i];
     }
+
+    I = 0;
+
+    srand( (unsigned) time(NULL) ); // Seed for RNG
 }
 
 bool CPU::loadRom(char const* f)
@@ -289,47 +293,165 @@ void CPU::SNE_Vx_Vy()
     }
 }
 
+// Set I = nnn
 void CPU::LD_I_ADDR()
-{}
+{
+    I = opcode && 0x0FFF;
+}
 
+// Jump to location nnn + V0
 void CPU::JP_V0_ADDR()
-{}
+{
+    pc = ( opcode && 0x0FFF ) + registers[0];
+}
 
+// Set Vx = random byte AND kk.
 void CPU::RND_Vx_BYTE()
-{}
+{
+    int random = rand() % 256;
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    registers[Vx] = random && ( opcode && 0x00FF );
+}
 
+// Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision
 void CPU::DRW_Vx_Vy_NIBBLE()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
 
+    uint8_t x_coord = registers[Vx] % 64;
+    uint8_t y_coord = registers[Vy] % 32;
+
+    uint8_t n = ( opcode & 0x000F );
+    for ( int i = 0; i < n; i++ ) // Reads n bytes
+    {
+        uint8_t byte = memory[I + i];
+
+        for ( int j = 0; j < 8; j++ )
+        {
+            int d = x_coord + j + 64*( y_coord + i );
+            uint32_t pixel = display[d]; // Gets address of correspnding pixel from display
+            uint8_t bit = byte && ( 0x80 >> j);
+
+            if ( bit )
+            {
+                pixel ^= 0xFFFFFFFF;
+                if ( display[d] == 0xFFFFFFFFF )
+                {
+                    registers[0xF000] = 1;
+                }
+
+                display[d] = pixel;
+            }
+        }
+    }
+}
+
+// Skip next instruction if key with the value of Vx is pressed
 void CPU::SKP_Vx()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    if ( keys[registers[Vx]] == 1 )
+    {
+        pc += 2;
+    }
+}
 
+// Skip next instruction if key with the value of Vx is not pressed
 void CPU::SKNP_Vx()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    if ( keys[registers[Vx]] == 0 )
+    {
+        pc += 2;
+    }
+}
 
+// Fx07 - LD Vx, DT
 void CPU::LD_Vx_DT()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    registers[Vx] = dt;
+}
 
+// Wait for a key press, store the value of the key in Vx
 void CPU::LD_Vx_K()
-{}
+{
+    bool key_pressed = false;
+    for ( int i = 0; i < 16; i++ )
+    {
+        if ( keys[i] == 1 )
+        {
+            key_pressed = true;
+            break;
+        }
+    }
 
+    if ( !key_pressed )
+    {
+        pc -= 2; // Causes this instruction to run again
+    }
+}
+
+// Set delay timer = Vx
 void CPU::LD_DT_Vx()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    dt = registers[Vx];
+}
 
+// Set sound timer = Vx
 void CPU::LD_ST_Vx()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    st = registers[Vx];
+}
 
+// Set I = I + Vx
 void CPU::ADD_I_Vx()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    I += registers[Vx];
+}
 
+// Set I = location of sprite for digit Vx
 void CPU::LD_F_Vx()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    
+    // Register Vx will be holding location of font in memory
+    // As each font character uses 5 bytes, it goes to the start of the fontset
+    // And moves forward by the location of the character * 5
+    I = FONT_ADDR + registers[Vx] * 5;  
+}
 
+// Store BCD representation of Vx in memory locations I, I+1, and I+2
 void CPU::LD_B_Vx()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    memory[I] = ( registers[Vx] / 100) % 10;
+    memory[I+1] = ( registers[Vx] / 10 ) % 10;
+    memory[I+2] = registers[Vx] % 10;
+}
 
+// Store registers V0 through Vx in memory starting at location I
 void CPU::LD_I_Vx()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    int it = I;
+    for ( int r = 0; r <= Vx; r++ ) {
+        memory[it] = registers[r];
+        it++;
+    }
+}
 
+// Read registers V0 through Vx from memory starting at location I
 void CPU::LD_Vx_I()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    int it = I;
+    for ( int r = 0; r <= Vx; r++ ) {
+        registers[r] = memory[it];
+        it++;
+    }
+}
