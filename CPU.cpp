@@ -99,59 +99,195 @@ void CPU::CALL_ADDR()
     pc = opcode & 0x0FFF;   // Set program counter to nnn, which is extracted from opcode by applying a bitmask
 }
 
-// Skip next instruction if Vx = kk
+// Skip next instruction if Vx == kk
 void CPU::SE_Vx_BYTE()
 {
     uint8_t Vx = ( opcode & 0x0F00 ) >> 8;   // Get register Vx by applying bitmask and shifting
-    uint8_t byte = opcode & 0x00FF;
+    uint8_t kk = opcode & 0x00FF;
 
-    if ( registers[Vx] == byte )
+    if ( registers[Vx] == kk )
     {
         pc += 2;
     }
 }
 
+// Skip next instruction if Vx != kk
 void CPU::SNE_Vx_BYTE()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    uint8_t kk = opcode & 0x00FF;
 
+    if ( registers[Vx] != kk )
+    {
+        pc += 2;
+    }
+}
+
+// Skip next instruction if Vx = Vy
 void CPU::SE_Vx_Vy()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
 
+    if ( registers[Vx] == registers[Vy] )
+    {
+        pc += 2;
+    }
+}
+
+// Set Vx = kk
 void CPU::LD_Vx_BYTE()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    uint8_t kk = opcode & 0x00FF;
 
+    registers[Vx] = kk;
+}
+
+// Set Vx = Vx + kk
 void CPU::ADD_Vx_BYTE()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    uint8_t kk = opcode & 0x00FF;
 
+    registers[Vx] += kk;
+}
+
+// Set Vx = Vy
 void CPU::LD_Vx_Vy()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
 
+    registers[Vx] = registers[Vy];
+}
+
+// Set Vx = Vx OR Vy
 void CPU::OR_Vx_Vy()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
 
+    registers[Vx] = registers[Vx] || registers[Vy];
+}
+
+// Set Vx = Vx AND Vy
 void CPU::AND_Vx_Vy()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
 
+    registers[Vx] = registers[Vx] && registers[Vy];
+}
+
+// Set Vx = Vx XOR Vy
 void CPU::XOR_Vx_Vy()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
 
+    registers[Vx] = registers[Vx] ^ registers[Vy];
+}
+
+// Set Vx = Vx + Vy, set VF = carry
 void CPU::ADD_Vx_Vy()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
 
+    if ( registers[Vx] + registers[Vy] > 255 )
+    {
+        registers[Vy] = 1;
+    }
+    else
+    {
+        registers[Vy] = 0;
+    }
+
+    registers[Vx] = ( registers[Vx] + registers[Vy] ) && 0xFF00;
+}
+
+// Set Vx = Vx - Vy, set VF = NOT borrow
 void CPU::SUB_Vx_Vy()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
 
-void CPU::SHR_Vx_Vy()
-{}
+    if ( registers[Vx] > registers[Vy] )
+    {
+        registers[0xF000] = 1;
+    }
+    else
+    {
+        registers[0xF000] = 0;
+    }
 
+    registers[Vx] -= registers[Vy];
+}
+
+// Set Vx = Vx SHR 1
+void CPU::SHR_Vx()
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+
+    if ( ( registers[Vx] && 0x0001 ) == 1 )
+    {
+        registers[0xF000] = 1;
+    }
+    else
+    {
+        registers[0xF000] = 0;
+    }
+
+    registers[Vx] = registers[Vx] / 2;
+}
+
+// Set Vx = Vy - Vx, set VF = NOT borrow
 void CPU::SUBN_Vx_Vy()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
 
-void CPU::SHL_Vx_Vy()
-{}
+    if ( registers[Vx] < registers[Vy] )
+    {
+        registers[0xF000] = 1;
+    }
+    else
+    {
+        registers[0xF000] = 0;
+    }
 
+    registers[Vx] = registers[Vy] - registers[Vx];
+}
+
+// Set Vx = Vx SHL 1
+void CPU::SHL_Vx()
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+
+    if ( ( registers[Vx] && 0x8000 ) == 1 )
+    {
+        registers[0xF000] = 1;
+    }
+    else
+    {
+        registers[0xF000] = 0;
+    }
+
+    registers[Vx] *= 2;
+}
+
+// Skip next instruction if Vx != Vy
 void CPU::SNE_Vx_Vy()
-{}
+{
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
+
+    if ( registers[Vx] != registers[Vy] )
+    {
+        pc += 2;
+    }
+}
 
 void CPU::LD_I_ADDR()
 {}

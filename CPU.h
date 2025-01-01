@@ -36,9 +36,9 @@ class CPU
         void XOR_Vx_Vy();
         void ADD_Vx_Vy();
         void SUB_Vx_Vy();
-        void SHR_Vx_Vy();
+        void SHR_Vx();
         void SUBN_Vx_Vy();
-        void SHL_Vx_Vy();
+        void SHL_Vx();
         void SNE_Vx_Vy();
         void LD_I_ADDR();
         void JP_V0_ADDR();
