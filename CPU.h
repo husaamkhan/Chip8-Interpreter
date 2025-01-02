@@ -19,42 +19,43 @@ class CPU
         
         void loadFont();
         bool loadRom(char const* f);
+        void cycle();
 
         // Standard Chip-8 instructions
         void CLS();
         void RET();
         void JP_ADDR();
         void CALL_ADDR();
-        void SE_Vx_BYTE();
-        void SNE_Vx_BYTE();
-        void SE_Vx_Vy();
-        void LD_Vx_BYTE();
-        void ADD_Vx_BYTE();
-        void LD_Vx_Vy();
-        void OR_Vx_Vy();
-        void AND_Vx_Vy();
-        void XOR_Vx_Vy();
-        void ADD_Vx_Vy();
-        void SUB_Vx_Vy();
-        void SHR_Vx();
-        void SUBN_Vx_Vy();
-        void SHL_Vx();
-        void SNE_Vx_Vy();
+        void SE_Vx_BYTE(uint8_t Vx, uint8_t byte);
+        void SNE_Vx_BYTE(uint8_t Vx, uint8_t byte);
+        void SE_Vx_Vy(uint8_t Vx, uint8_t Vy);
+        void LD_Vx_BYTE(int Vx, int byte);
+        void ADD_Vx_BYTE(int Vx, int byte);
+        void LD_Vx_Vy(uint8_t Vx, uint8_t Vy);
+        void OR_Vx_Vy(uint8_t Vx, uint8_t Vy);
+        void AND_Vx_Vy(uint8_t Vx, uint8_t Vy);
+        void XOR_Vx_Vy(uint8_t Vx, uint8_t Vy);
+        void ADD_Vx_Vy(uint8_t Vx, uint8_t Vy);
+        void SUB_Vx_Vy(uint8_t Vx, uint8_t Vy);
+        void SHR_Vx(uint8_t Vx);
+        void SUBN_Vx_Vy(uint8_t Vx, uint8_t Vy);
+        void SHL_Vx(uint8_t Vx);
+        void SNE_Vx_Vy(uint8_t Vx, uint8_t Vy);
         void LD_I_ADDR();
         void JP_V0_ADDR();
-        void RND_Vx_BYTE();
-        void DRW_Vx_Vy_NIBBLE();
-        void SKP_Vx();
-        void SKNP_Vx();
-        void LD_Vx_DT();
-        void LD_Vx_K();
-        void LD_DT_Vx();
-        void LD_ST_Vx();
-        void ADD_I_Vx();
-        void LD_F_Vx();
-        void LD_B_Vx();
-        void LD_I_Vx();
-        void LD_Vx_I();
+        void RND_Vx_BYTE(uint8_t Vx, uint8_t byte);
+        void DRW_Vx_Vy_NIBBLE(uint8_t Vx, uint8_t Vy);
+        void SKP_Vx(uint8_t Vx);
+        void SKNP_Vx(uint8_t Vx);
+        void LD_Vx_DT(uint8_t Vx);
+        void LD_Vx_K(uint8_t Vx);
+        void LD_DT_Vx(uint8_t Vx);
+        void LD_ST_Vx(uint8_t Vx);
+        void ADD_I_Vx(uint8_t Vx);
+        void LD_F_Vx(uint8_t Vx);
+        void LD_B_Vx(uint8_t Vx);
+        void LD_I_Vx(uint8_t Vx);
+        void LD_Vx_I(uint8_t Vx);
 
     private:
         uint8_t registers[16];      // 16 8-bit general purpose registers

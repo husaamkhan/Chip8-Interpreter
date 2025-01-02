@@ -8,6 +8,10 @@ CPU::CPU()
 {
     loadFont();
     pc = START_ADDR;
+    I = 0;
+    sp = 0;
+    st = 0;
+    dt = 0;
 }
 
 CPU::~CPU()
@@ -73,6 +77,206 @@ bool CPU::loadRom(char const* f)
     return true;
 }
 
+void CPU::cycle()
+{
+    // Fetch instruction from memory
+    // Merges the next 2 bytes together to form the opcode
+    opcode = memory[pc] << 8 | memory[pc+1];
+    pc += 2;
+
+    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
+    uint8_t kk = opcode & 0x00FF;
+
+    // Decode the instruction and execute
+    switch ( opcode & 0xF000 )
+    {
+        case 0:
+            switch ( opcode & 0x000F )
+            {
+                case 0:         // 00E0: CLS
+                    CLS();
+                    break;
+                
+                case 0x000E:    // 00EE: RET
+                    RET();
+                    break;
+                
+                default:
+                    cerr << "Error reading opcode: " << hex << opcode << endl;
+                    break;
+            }
+
+            break;
+
+        case 1: // 1nnn: JP addr
+            JP_ADDR();
+            break;
+        
+        case 2: // 2nnn: CALL addr
+            CALL_ADDR();
+            break;
+
+        case 3: // 3xkk: SE Vx, byte
+            SE_Vx_BYTE(Vx, kk);
+            break;
+
+        case 4: // 4xkk: SNE Vx, byte
+            SNE_Vx_BYTE(Vx, kk);
+            break;
+        
+        case 5: // 5xy0: SE Vx, Vy
+            SE_Vx_Vy(Vx, Vy);
+            
+            break;
+        
+        case 6: // 6xkk: LD Vx, byte
+            LD_Vx_BYTE(Vx, kk);            
+            break;
+
+        case 7: // 7xkk: ADD Vx, byte
+            ADD_Vx_BYTE(Vx, kk);
+            break;
+
+        case 8:
+            switch( opcode & 0x000F )
+            {
+                case 0: // 8xy0: LD Vx, Vy
+                    LD_Vx_Vy(Vx, Vy);
+                    break;
+                
+                case 1: // 8xy1: OR Vx, Vy
+                    OR_Vx_Vy(Vx, Vy);
+                    break;
+
+                case 2: // 8xy2: AND Vx, Vy
+                    AND_Vx_Vy(Vx, Vy);
+                    break;
+
+                case 3: // 8xy3: XOR Vx, Vy
+                    XOR_Vx_Vy(Vx, Vy);
+                    break;
+                
+                case 4: // 8xy4: AND Vx, Vy
+                    AND_Vx_Vy(Vx, Vy);
+                    break;
+                
+                case 5: // 8xy5: SUB Vx, Vy
+                    SUB_Vx_Vy(Vx, Vy);
+                    break;
+                
+                case 6: // 8xy6: SHR Vx
+                    SHR_Vx(Vx);
+                    break;
+                
+                case 7: // 8xy7: SUBN Vx, Vy
+                    SUBN_Vx_Vy(Vx, Vy);
+                    break;
+                
+                case 0x000E: // 8xyE: SHL Vx
+                    SHL_Vx(Vx);
+                    break;
+                default:
+                    cerr << "Error reading opcode: " << hex << opcode << endl;
+            }
+
+            break;
+
+        case 9: // 9xy0: SNE Vx, Vy
+            SNE_Vx_Vy(Vx, Vy);
+            break;
+
+        case 0xA000: // Annn: LD I, addr
+            LD_I_ADDR();
+            break;
+        
+        case 0xB000: // Bnnn JP V0, addr
+            JP_V0_ADDR();
+            break;
+        
+        case 0xC000: // Cxkk: RND Vx, byte
+            RND_Vx_BYTE(Vx, kk);
+            break;
+
+        case 0xD000: // Dxyn: DRW Vx, Vy, nibble
+            DRW_Vx_Vy_NIBBLE(Vx, Vy);
+            break;
+
+        case 0xE000:
+            switch( opcode & 0x000F )
+            {
+                case 0x000E: // Ex9E: SKP Vx
+                    SKP_Vx(Vx);
+                    break;
+                
+                case 1: // ExA1: SKNP Vx
+                    SKNP_Vx(Vx);
+                    break;
+                
+                default:
+                    cerr << "Error reading opcode: " << hex << opcode << endl;
+            }
+            break;
+
+        case 0xF000:
+            switch( opcode & 0x000F )
+            {
+                case 7: // Fx07: LD Vx, DT
+                    LD_Vx_DT(Vx);
+                    break;
+
+                case 0x000A: // Fx0A: LD Vx, K
+                    LD_Vx_K(Vx);
+                    break;
+                
+                case 5:
+                    // Switch table to handle Fx15, Fx55, and Fx65
+                    switch( ( opcode & 0x00F0 ) >> 4 )
+                    {
+                        case 1: // Fx15: LD DT, Vx
+                            LD_DT_Vx(Vx);
+                            break;
+
+                        case 5: // Fx55: LD [I], Vx
+                            LD_I_Vx(Vx);
+                            break;
+                        
+                        case 6: // Fx65: LD Vx, [I]
+                            LD_Vx_I(Vx);
+                            break;
+                        
+                        default:
+                            cerr << "Error reading opcode: " << hex << opcode << endl;
+                    }
+
+                    break;
+                    
+                case 8: // Fx18: LD ST, Vx
+                    LD_ST_Vx(Vx);
+                    break;
+                
+                case 0x000E: // Fx1E: ADD I, Vx
+                    ADD_I_Vx(Vx);
+                    break;
+                
+                case 9: // Fx29: LD F, Vx
+                    LD_F_Vx(Vx);
+                    break;
+                
+                case 3: // Fx33: LD_B_Vx
+                    LD_B_Vx(Vx);
+                    break;
+            }
+            break;
+        
+        default:
+            cerr << "Error reading opcode: " << hex << opcode << endl;
+            break;
+    }
+
+
+}
+
 // Clears display
 void CPU::CLS()
 {
@@ -104,35 +308,26 @@ void CPU::CALL_ADDR()
 }
 
 // Skip next instruction if Vx == kk
-void CPU::SE_Vx_BYTE()
+void CPU::SE_Vx_BYTE(uint8_t Vx, uint8_t byte)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;   // Get register Vx by applying bitmask and shifting
-    uint8_t kk = opcode & 0x00FF;
-
-    if ( registers[Vx] == kk )
+    if ( registers[Vx] == byte )
     {
         pc += 2;
     }
 }
 
 // Skip next instruction if Vx != kk
-void CPU::SNE_Vx_BYTE()
+void CPU::SNE_Vx_BYTE(uint8_t Vx, uint8_t byte)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-    uint8_t kk = opcode & 0x00FF;
-
-    if ( registers[Vx] != kk )
+    if ( registers[Vx] != byte )
     {
         pc += 2;
     }
 }
 
 // Skip next instruction if Vx = Vy
-void CPU::SE_Vx_Vy()
+void CPU::SE_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
-
     if ( registers[Vx] == registers[Vy] )
     {
         pc += 2;
@@ -140,65 +335,44 @@ void CPU::SE_Vx_Vy()
 }
 
 // Set Vx = kk
-void CPU::LD_Vx_BYTE()
+void CPU::LD_Vx_BYTE(int Vx, int byte)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-    uint8_t kk = opcode & 0x00FF;
-
-    registers[Vx] = kk;
+    registers[Vx] = byte;
 }
 
 // Set Vx = Vx + kk
-void CPU::ADD_Vx_BYTE()
+void CPU::ADD_Vx_BYTE(int Vx, int byte)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-    uint8_t kk = opcode & 0x00FF;
-
-    registers[Vx] += kk;
+    registers[Vx] += byte;
 }
 
 // Set Vx = Vy
-void CPU::LD_Vx_Vy()
+void CPU::LD_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
-
     registers[Vx] = registers[Vy];
 }
 
 // Set Vx = Vx OR Vy
-void CPU::OR_Vx_Vy()
+void CPU::OR_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
-
     registers[Vx] = registers[Vx] || registers[Vy];
 }
 
 // Set Vx = Vx AND Vy
-void CPU::AND_Vx_Vy()
+void CPU::AND_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
-
-    registers[Vx] = registers[Vx] && registers[Vy];
+    registers[Vx] = registers[Vx] & registers[Vy];
 }
 
 // Set Vx = Vx XOR Vy
-void CPU::XOR_Vx_Vy()
+void CPU::XOR_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
-
     registers[Vx] = registers[Vx] ^ registers[Vy];
 }
 
 // Set Vx = Vx + Vy, set VF = carry
-void CPU::ADD_Vx_Vy()
+void CPU::ADD_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
-
     if ( registers[Vx] + registers[Vy] > 255 )
     {
         registers[Vy] = 1;
@@ -208,15 +382,12 @@ void CPU::ADD_Vx_Vy()
         registers[Vy] = 0;
     }
 
-    registers[Vx] = ( registers[Vx] + registers[Vy] ) && 0xFF00;
+    registers[Vx] = ( registers[Vx] + registers[Vy] ) & 0xFF00;
 }
 
 // Set Vx = Vx - Vy, set VF = NOT borrow
-void CPU::SUB_Vx_Vy()
+void CPU::SUB_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
-
     if ( registers[Vx] > registers[Vy] )
     {
         registers[0xF000] = 1;
@@ -230,11 +401,9 @@ void CPU::SUB_Vx_Vy()
 }
 
 // Set Vx = Vx SHR 1
-void CPU::SHR_Vx()
+void CPU::SHR_Vx(uint8_t Vx)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-
-    if ( ( registers[Vx] && 0x0001 ) == 1 )
+    if ( ( registers[Vx] & 0x0001 ) == 1 )
     {
         registers[0xF000] = 1;
     }
@@ -247,11 +416,8 @@ void CPU::SHR_Vx()
 }
 
 // Set Vx = Vy - Vx, set VF = NOT borrow
-void CPU::SUBN_Vx_Vy()
+void CPU::SUBN_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
-
     if ( registers[Vx] < registers[Vy] )
     {
         registers[0xF000] = 1;
@@ -265,11 +431,9 @@ void CPU::SUBN_Vx_Vy()
 }
 
 // Set Vx = Vx SHL 1
-void CPU::SHL_Vx()
+void CPU::SHL_Vx(uint8_t Vx)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-
-    if ( ( registers[Vx] && 0x8000 ) == 1 )
+    if ( ( registers[Vx] & 0x8000 ) == 1 )
     {
         registers[0xF000] = 1;
     }
@@ -282,11 +446,8 @@ void CPU::SHL_Vx()
 }
 
 // Skip next instruction if Vx != Vy
-void CPU::SNE_Vx_Vy()
+void CPU::SNE_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
-
     if ( registers[Vx] != registers[Vy] )
     {
         pc += 2;
@@ -296,29 +457,25 @@ void CPU::SNE_Vx_Vy()
 // Set I = nnn
 void CPU::LD_I_ADDR()
 {
-    I = opcode && 0x0FFF;
+    I = opcode & 0x0FFF;
 }
 
 // Jump to location nnn + V0
 void CPU::JP_V0_ADDR()
 {
-    pc = ( opcode && 0x0FFF ) + registers[0];
+    pc = ( opcode & 0x0FFF ) + registers[0];
 }
 
 // Set Vx = random byte AND kk.
-void CPU::RND_Vx_BYTE()
+void CPU::RND_Vx_BYTE(uint8_t Vx, uint8_t byte)
 {
     int random = rand() % 256;
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-    registers[Vx] = random && ( opcode && 0x00FF );
+    registers[Vx] = random & byte;
 }
 
 // Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision
-void CPU::DRW_Vx_Vy_NIBBLE()
+void CPU::DRW_Vx_Vy_NIBBLE(uint8_t Vx, uint8_t Vy)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-    uint8_t Vy = ( opcode & 0x00F0 ) >> 4;
-
     uint8_t x_coord = registers[Vx] % 64;
     uint8_t y_coord = registers[Vy] % 32;
 
@@ -331,7 +488,7 @@ void CPU::DRW_Vx_Vy_NIBBLE()
         {
             int d = x_coord + j + 64*( y_coord + i );
             uint32_t pixel = display[d]; // Gets address of correspnding pixel from display
-            uint8_t bit = byte && ( 0x80 >> j);
+            uint8_t bit = byte & ( 0x80 >> j);
 
             if ( bit )
             {
@@ -348,9 +505,8 @@ void CPU::DRW_Vx_Vy_NIBBLE()
 }
 
 // Skip next instruction if key with the value of Vx is pressed
-void CPU::SKP_Vx()
+void CPU::SKP_Vx(uint8_t Vx)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
     if ( keys[registers[Vx]] == 1 )
     {
         pc += 2;
@@ -358,9 +514,8 @@ void CPU::SKP_Vx()
 }
 
 // Skip next instruction if key with the value of Vx is not pressed
-void CPU::SKNP_Vx()
+void CPU::SKNP_Vx(uint8_t Vx)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
     if ( keys[registers[Vx]] == 0 )
     {
         pc += 2;
@@ -368,14 +523,13 @@ void CPU::SKNP_Vx()
 }
 
 // Fx07 - LD Vx, DT
-void CPU::LD_Vx_DT()
+void CPU::LD_Vx_DT(uint8_t Vx)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
     registers[Vx] = dt;
 }
 
 // Wait for a key press, store the value of the key in Vx
-void CPU::LD_Vx_K()
+void CPU::LD_Vx_K(uint8_t Vx)
 {
     bool key_pressed = false;
     for ( int i = 0; i < 16; i++ )
@@ -383,6 +537,7 @@ void CPU::LD_Vx_K()
         if ( keys[i] == 1 )
         {
             key_pressed = true;
+            registers[Vx] = i;
             break;
         }
     }
@@ -394,31 +549,26 @@ void CPU::LD_Vx_K()
 }
 
 // Set delay timer = Vx
-void CPU::LD_DT_Vx()
+void CPU::LD_DT_Vx(uint8_t Vx)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
     dt = registers[Vx];
 }
 
 // Set sound timer = Vx
-void CPU::LD_ST_Vx()
+void CPU::LD_ST_Vx(uint8_t Vx)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
     st = registers[Vx];
 }
 
 // Set I = I + Vx
-void CPU::ADD_I_Vx()
+void CPU::ADD_I_Vx(uint8_t Vx)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
     I += registers[Vx];
 }
 
 // Set I = location of sprite for digit Vx
-void CPU::LD_F_Vx()
-{
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
-    
+void CPU::LD_F_Vx(uint8_t Vx)
+{  
     // Register Vx will be holding location of font in memory
     // As each font character uses 5 bytes, it goes to the start of the fontset
     // And moves forward by the location of the character * 5
@@ -426,18 +576,16 @@ void CPU::LD_F_Vx()
 }
 
 // Store BCD representation of Vx in memory locations I, I+1, and I+2
-void CPU::LD_B_Vx()
+void CPU::LD_B_Vx(uint8_t Vx)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
     memory[I] = ( registers[Vx] / 100) % 10;
     memory[I+1] = ( registers[Vx] / 10 ) % 10;
     memory[I+2] = registers[Vx] % 10;
 }
 
 // Store registers V0 through Vx in memory starting at location I
-void CPU::LD_I_Vx()
+void CPU::LD_I_Vx(uint8_t Vx)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
     int it = I;
     for ( int r = 0; r <= Vx; r++ ) {
         memory[it] = registers[r];
@@ -446,9 +594,9 @@ void CPU::LD_I_Vx()
 }
 
 // Read registers V0 through Vx from memory starting at location I
-void CPU::LD_Vx_I()
+void CPU::LD_Vx_I(uint8_t Vx)
 {
-    uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
+    // uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
     int it = I;
     for ( int r = 0; r <= Vx; r++ ) {
         registers[r] = memory[it];
