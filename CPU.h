@@ -20,6 +20,7 @@ class CPU
         void loadFont();
         bool loadRom(char const* f);
         void cycle();
+        void setKey(int k, int p);
 
         // Standard Chip-8 instructions
         void CLS();

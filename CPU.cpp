@@ -273,8 +273,11 @@ void CPU::cycle()
             cerr << "Error reading opcode: " << hex << opcode << endl;
             break;
     }
+}
 
-
+void CPU::setKey(int k, int p)
+{
+    keys[k] = p;
 }
 
 // Clears display

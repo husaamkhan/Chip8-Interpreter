@@ -11,10 +11,12 @@
 class Interface
 {
     public:
-        Interface(char* title, int w_window, int h_window, int w_texture, int h_texture);
+        Interface();
         ~Interface();
 
+        void initialize(char* title, int w_window, int h_window, int w_texture, int h_texture);
         void refreshDisplay(char* pixels);
+        bool getInput(int& key, int& pressed);
 
     private:
         SDL_Window* window;
