@@ -413,15 +413,19 @@ void CPU::ADD_Vx_Vy(uint8_t Vx, uint8_t Vy)
 // Set Vx = Vx - Vy, set VF = NOT borrow
 void CPU::SUB_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
-    registers[Vx] -= registers[Vy];
-    if ( registers[Vx] > registers[Vy] )
-    {
-        registers[0xF] = 1;
-    }
-    else
+    uint8_t diff = (uint8_t) registers[Vx] - (uint8_t) registers[Vy];
+
+    if (registers[Vx] < registers[Vy])
     {
         registers[0xF] = 0;
     }
+    else
+    {
+        registers[0xF] = 1;
+    }
+
+    registers[Vx] = diff;
+
 }
 
 // Set Vx = Vx SHR 1
