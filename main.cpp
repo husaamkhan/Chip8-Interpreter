@@ -1,6 +1,7 @@
 #include "CPU.h"
 #include "Interface.h"
 #include <ctime>
+#include <stdlib.h>
 
 #include <iostream>
 using namespace std;
@@ -8,7 +9,7 @@ using namespace std;
 int main(int argc, char* argv[])
 {
     CPU* cpu = new CPU();
-    bool success = cpu->loadRom(argv[1]);
+    bool success = cpu->loadRom(argv[2]);
     
     if ( !success )
     {
@@ -16,7 +17,9 @@ int main(int argc, char* argv[])
     }
 
     Interface* interface = new Interface();
-    interface->initialize(argv[1], 64*10, 32*10, 64, 32);
+    interface->initialize(argv[2], 64*10, 32*10, 64, 32);
+
+    double delay = 1 / stoi(argv[1]);
 
     bool running = true;
 
@@ -25,6 +28,8 @@ int main(int argc, char* argv[])
     time(&last_time);
     int k = -1;
     int p = -1;
+
+    string input;
 
     while ( running ) // Emulation loop
     {
@@ -37,12 +42,22 @@ int main(int argc, char* argv[])
             cpu->setKey(k, p);
         }
 
-        // Emulator runs at 60hz, so it waits until a second passes before running one cpu cycle
+        // Emulator runs at 30hz, so it waits until 0.033 seconds passes before performing a cpu cycle
         time(&current_time);
-        if ( difftime(current_time, last_time) >= 1 )
+        if ( running && difftime(current_time, last_time) >= 0.033 )
         {
-            break;
+            cpu->cycle();
+            interface->refreshDisplay(cpu->getDisplay());
         }
+
+        // cout << "Continue? (Y/N): ";
+        // cin >> input;
+        // cout << endl;
+
+        // if ( input.compare("N") == 0 )
+        // {
+        //     running = false;
+        // }
     }
 
     delete cpu;

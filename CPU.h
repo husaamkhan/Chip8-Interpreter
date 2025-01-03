@@ -21,6 +21,7 @@ class CPU
         bool loadRom(char const* f);
         void cycle();
         void setKey(int k, int p);
+        uint32_t* getDisplay();
 
         // Standard Chip-8 instructions
         void CLS();
@@ -30,8 +31,8 @@ class CPU
         void SE_Vx_BYTE(uint8_t Vx, uint8_t byte);
         void SNE_Vx_BYTE(uint8_t Vx, uint8_t byte);
         void SE_Vx_Vy(uint8_t Vx, uint8_t Vy);
-        void LD_Vx_BYTE(int Vx, int byte);
-        void ADD_Vx_BYTE(int Vx, int byte);
+        void LD_Vx_BYTE(uint8_t Vx, uint8_t byte);
+        void ADD_Vx_BYTE(uint8_t Vx, uint8_t byte);
         void LD_Vx_Vy(uint8_t Vx, uint8_t Vy);
         void OR_Vx_Vy(uint8_t Vx, uint8_t Vy);
         void AND_Vx_Vy(uint8_t Vx, uint8_t Vy);

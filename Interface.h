@@ -15,7 +15,7 @@ class Interface
         ~Interface();
 
         void initialize(char* title, int w_window, int h_window, int w_texture, int h_texture);
-        void refreshDisplay(char* pixels);
+        void refreshDisplay(void* pixels);
         bool getInput(int& key, int& pressed);
 
     private:

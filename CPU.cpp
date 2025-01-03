@@ -82,6 +82,10 @@ void CPU::cycle()
     // Fetch instruction from memory
     // Merges the next 2 bytes together to form the opcode
     opcode = memory[pc] << 8 | memory[pc+1];
+
+    cout << "Opcode: " << hex << opcode << " Program Counter: " << dec << pc << endl;
+    cout << "MSB: " << hex << ( ( opcode & 0XF000 ) >> 12 ) << " x: " << hex << ( ( opcode & 0x0F00 ) >> 8) << " kk: " << hex << ( opcode & 0x00FF ) << endl;
+    
     pc += 2;
 
     uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
@@ -89,7 +93,7 @@ void CPU::cycle()
     uint8_t kk = opcode & 0x00FF;
 
     // Decode the instruction and execute
-    switch ( opcode & 0xF000 )
+    switch ( ( opcode & 0xF000 ) >> 12 )
     {
         case 0:
             switch ( opcode & 0x000F )
@@ -103,7 +107,7 @@ void CPU::cycle()
                     break;
                 
                 default:
-                    cerr << "Error reading opcode: " << hex << opcode << endl;
+                    cout << "Error reading opcode: " << hex << opcode << endl;
                     break;
             }
 
@@ -177,7 +181,8 @@ void CPU::cycle()
                     SHL_Vx(Vx);
                     break;
                 default:
-                    cerr << "Error reading opcode: " << hex << opcode << endl;
+                    cout << "Error reading opcode: " << hex << opcode << endl;
+                    break;
             }
 
             break;
@@ -186,23 +191,23 @@ void CPU::cycle()
             SNE_Vx_Vy(Vx, Vy);
             break;
 
-        case 0xA000: // Annn: LD I, addr
+        case 0x000A: // Annn: LD I, addr
             LD_I_ADDR();
             break;
         
-        case 0xB000: // Bnnn JP V0, addr
+        case 0x000B: // Bnnn JP V0, addr
             JP_V0_ADDR();
             break;
         
-        case 0xC000: // Cxkk: RND Vx, byte
+        case 0x000C: // Cxkk: RND Vx, byte
             RND_Vx_BYTE(Vx, kk);
             break;
 
-        case 0xD000: // Dxyn: DRW Vx, Vy, nibble
+        case 0x000D: // Dxyn: DRW Vx, Vy, nibble
             DRW_Vx_Vy_NIBBLE(Vx, Vy);
             break;
 
-        case 0xE000:
+        case 0x000E:
             switch( opcode & 0x000F )
             {
                 case 0x000E: // Ex9E: SKP Vx
@@ -214,11 +219,12 @@ void CPU::cycle()
                     break;
                 
                 default:
-                    cerr << "Error reading opcode: " << hex << opcode << endl;
+                    cout << "Error reading opcode: " << hex << opcode << endl;
+                    break;
             }
             break;
 
-        case 0xF000:
+        case 0x000F:
             switch( opcode & 0x000F )
             {
                 case 7: // Fx07: LD Vx, DT
@@ -246,7 +252,8 @@ void CPU::cycle()
                             break;
                         
                         default:
-                            cerr << "Error reading opcode: " << hex << opcode << endl;
+                            cout << "Error reading opcode: " << hex << opcode << endl;
+                            break;
                     }
 
                     break;
@@ -270,7 +277,8 @@ void CPU::cycle()
             break;
         
         default:
-            cerr << "Error reading opcode: " << hex << opcode << endl;
+            cout << "Error reading opcode: " << opcode << endl;
+            cout << "Failed at first default" << endl;
             break;
     }
 }
@@ -278,6 +286,11 @@ void CPU::cycle()
 void CPU::setKey(int k, int p)
 {
     keys[k] = p;
+}
+
+uint32_t* CPU::getDisplay()
+{
+    return display;
 }
 
 // Clears display
@@ -292,8 +305,8 @@ void CPU::CLS()
 // Return from subroutine
 void CPU::RET()
 {
-    pc = stack[sp]; // Set program counter to address at top of stack
     sp--;           // Decrement stack pointer
+    pc = stack[sp]; // Set program counter to address at top of stack
 }
 
 // Jump to location nnn
@@ -305,8 +318,8 @@ void CPU::JP_ADDR()
 // Call subroutine at nnn
 void CPU::CALL_ADDR()
 {
-    sp++;
     stack[sp] = pc;         // Puts program counter at the top of stack
+    sp++;
     pc = opcode & 0x0FFF;   // Set program counter to nnn, which is extracted from opcode by applying a bitmask
 }
 
@@ -338,13 +351,13 @@ void CPU::SE_Vx_Vy(uint8_t Vx, uint8_t Vy)
 }
 
 // Set Vx = kk
-void CPU::LD_Vx_BYTE(int Vx, int byte)
+void CPU::LD_Vx_BYTE(uint8_t Vx, uint8_t byte)
 {
     registers[Vx] = byte;
 }
 
 // Set Vx = Vx + kk
-void CPU::ADD_Vx_BYTE(int Vx, int byte)
+void CPU::ADD_Vx_BYTE(uint8_t Vx, uint8_t byte)
 {
     registers[Vx] += byte;
 }
@@ -358,19 +371,19 @@ void CPU::LD_Vx_Vy(uint8_t Vx, uint8_t Vy)
 // Set Vx = Vx OR Vy
 void CPU::OR_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
-    registers[Vx] = registers[Vx] || registers[Vy];
+    registers[Vx] |= registers[Vy];
 }
 
 // Set Vx = Vx AND Vy
 void CPU::AND_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
-    registers[Vx] = registers[Vx] & registers[Vy];
+    registers[Vx] &= registers[Vy];
 }
 
 // Set Vx = Vx XOR Vy
 void CPU::XOR_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
-    registers[Vx] = registers[Vx] ^ registers[Vy];
+    registers[Vx] ^= registers[Vy];
 }
 
 // Set Vx = Vx + Vy, set VF = carry
@@ -378,11 +391,11 @@ void CPU::ADD_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
     if ( registers[Vx] + registers[Vy] > 255 )
     {
-        registers[Vy] = 1;
+        registers[0xF000] = 1;
     }
     else
     {
-        registers[Vy] = 0;
+        registers[0xF000] = 0;
     }
 
     registers[Vx] = ( registers[Vx] + registers[Vy] ) & 0xFF00;
@@ -406,15 +419,7 @@ void CPU::SUB_Vx_Vy(uint8_t Vx, uint8_t Vy)
 // Set Vx = Vx SHR 1
 void CPU::SHR_Vx(uint8_t Vx)
 {
-    if ( ( registers[Vx] & 0x0001 ) == 1 )
-    {
-        registers[0xF000] = 1;
-    }
-    else
-    {
-        registers[0xF000] = 0;
-    }
-
+    registers[0xF000] = registers[Vx] & 0x1;
     registers[Vx] = registers[Vx] / 2;
 }
 
@@ -436,16 +441,8 @@ void CPU::SUBN_Vx_Vy(uint8_t Vx, uint8_t Vy)
 // Set Vx = Vx SHL 1
 void CPU::SHL_Vx(uint8_t Vx)
 {
-    if ( ( registers[Vx] & 0x8000 ) == 1 )
-    {
-        registers[0xF000] = 1;
-    }
-    else
-    {
-        registers[0xF000] = 0;
-    }
-
-    registers[Vx] *= 2;
+    registers[0xF000] = registers[Vx] & 0x8000;
+    registers[Vx] <<= 1;
 }
 
 // Skip next instruction if Vx != Vy
@@ -482,7 +479,7 @@ void CPU::DRW_Vx_Vy_NIBBLE(uint8_t Vx, uint8_t Vy)
     uint8_t x_coord = registers[Vx] % 64;
     uint8_t y_coord = registers[Vy] % 32;
 
-    uint8_t n = ( opcode & 0x000F );
+    uint8_t n = opcode & 0x000F;
     for ( int i = 0; i < n; i++ ) // Reads n bytes
     {
         uint8_t byte = memory[I + i];
@@ -491,7 +488,7 @@ void CPU::DRW_Vx_Vy_NIBBLE(uint8_t Vx, uint8_t Vy)
         {
             int d = x_coord + j + 64*( y_coord + i );
             uint32_t pixel = display[d]; // Gets address of correspnding pixel from display
-            uint8_t bit = byte & ( 0x80 >> j);
+            uint8_t bit = byte & ( 0x80 >> j );
 
             if ( bit )
             {
@@ -499,6 +496,10 @@ void CPU::DRW_Vx_Vy_NIBBLE(uint8_t Vx, uint8_t Vy)
                 if ( display[d] == 0xFFFFFFFFF )
                 {
                     registers[0xF000] = 1;
+                }
+                else
+                {
+                    registers[0xF000] = 0;
                 }
 
                 display[d] = pixel;
@@ -510,7 +511,7 @@ void CPU::DRW_Vx_Vy_NIBBLE(uint8_t Vx, uint8_t Vy)
 // Skip next instruction if key with the value of Vx is pressed
 void CPU::SKP_Vx(uint8_t Vx)
 {
-    if ( keys[registers[Vx]] == 1 )
+    if ( keys[registers[Vx]] )
     {
         pc += 2;
     }
@@ -519,7 +520,7 @@ void CPU::SKP_Vx(uint8_t Vx)
 // Skip next instruction if key with the value of Vx is not pressed
 void CPU::SKNP_Vx(uint8_t Vx)
 {
-    if ( keys[registers[Vx]] == 0 )
+    if ( !keys[registers[Vx]] )
     {
         pc += 2;
     }
