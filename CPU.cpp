@@ -1,8 +1,9 @@
 #include "CPU.h"
 
 #include <fstream>
+
 #include <iostream>
-#include <vector>
+using namespace std;
 
 CPU::CPU()
 {
@@ -12,6 +13,13 @@ CPU::CPU()
     sp = 0;
     st = 0;
     dt = 0;
+
+    for ( int i = 0; i < 16; i++ )
+    {
+        registers[i] = 0;
+        stack[i] = 0;
+        keys[i] = 0;
+    }
 }
 
 CPU::~CPU()
@@ -161,8 +169,8 @@ void CPU::cycle()
                     XOR_Vx_Vy(Vx, Vy);
                     break;
                 
-                case 4: // 8xy4: AND Vx, Vy
-                    AND_Vx_Vy(Vx, Vy);
+                case 4: // 8xy4: ADD Vx, Vy
+                    ADD_Vx_Vy(Vx, Vy);
                     break;
                 
                 case 5: // 8xy5: SUB Vx, Vy
@@ -389,16 +397,17 @@ void CPU::XOR_Vx_Vy(uint8_t Vx, uint8_t Vy)
 // Set Vx = Vx + Vy, set VF = carry
 void CPU::ADD_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
-    if ( registers[Vx] + registers[Vy] > 255 )
+    uint16_t sum = registers[Vx] + registers[Vy];
+    if ( sum > 255 )
     {
-        registers[0xF000] = 1;
+        registers[0xF] = 1;
     }
     else
     {
-        registers[0xF000] = 0;
+        registers[0xF] = 0;
     }
 
-    registers[Vx] = ( registers[Vx] + registers[Vy] ) & 0xFF00;
+    registers[Vx] = (uint8_t) sum & 0x00FF;
 }
 
 // Set Vx = Vx - Vy, set VF = NOT borrow
