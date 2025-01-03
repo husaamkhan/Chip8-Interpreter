@@ -398,6 +398,7 @@ void CPU::XOR_Vx_Vy(uint8_t Vx, uint8_t Vy)
 void CPU::ADD_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
     uint16_t sum = registers[Vx] + registers[Vy];
+    registers[Vx] = (uint8_t) sum & 0x00FF;
     if ( sum > 255 )
     {
         registers[0xF] = 1;
@@ -407,7 +408,6 @@ void CPU::ADD_Vx_Vy(uint8_t Vx, uint8_t Vy)
         registers[0xF] = 0;
     }
 
-    registers[Vx] = (uint8_t) sum & 0x00FF;
 }
 
 // Set Vx = Vx - Vy, set VF = NOT borrow
