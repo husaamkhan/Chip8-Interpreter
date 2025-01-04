@@ -414,18 +414,10 @@ void CPU::ADD_Vx_Vy(uint8_t Vx, uint8_t Vy)
 void CPU::SUB_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
     uint8_t diff = (uint8_t) registers[Vx] - (uint8_t) registers[Vy];
-
-    if (registers[Vx] < registers[Vy])
-    {
-        registers[0xF] = 0;
-    }
-    else
-    {
-        registers[0xF] = 1;
-    }
+    int carry = registers[Vx] >= registers[Vy];
 
     registers[Vx] = diff;
-
+    registers[0xF] = carry;
 }
 
 // Set Vx = Vx SHR 1
