@@ -439,8 +439,8 @@ void CPU::SUBN_Vx_Vy(uint8_t Vx, uint8_t Vy)
 // Set Vx = Vx SHL 1
 void CPU::SHL_Vx(uint8_t Vx)
 {
-    registers[0xF000] = registers[Vx] & 0x8000;
-    registers[Vx] <<= 1;
+    registers[Vx] *= 2;
+    registers[0xF] = registers[Vx] & 0x8000;
 }
 
 // Skip next instruction if Vx != Vy
