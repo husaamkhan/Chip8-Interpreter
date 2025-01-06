@@ -44,9 +44,9 @@ int main(int argc, char* argv[])
             p  = -1;
         }
 
-        // Emulator runs at 30hz, so it waits until 0.033 seconds passes before performing a cpu cycle
+        // Runs cycle based on the inputted frequency
         time(&current_time);
-        if ( running && difftime(current_time, last_time) >= 0.033 )
+        if ( running && difftime(current_time, last_time) >= delay )
         {
             cpu->cycle();
             interface->refreshDisplay(cpu->getDisplay());
