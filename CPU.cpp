@@ -285,6 +285,16 @@ void CPU::cycle()
             cout << "Failed at first default" << endl;
             break;
     }
+
+    if ( dt > 0 )
+    {
+        dt--;
+    }
+
+    if ( st > 0 )
+    {
+        st--;
+    }
 }
 
 void CPU::setKey(int k, int p)
