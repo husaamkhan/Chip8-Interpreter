@@ -23,6 +23,7 @@ class CPU
         void setKey(int k, int p);
         uint32_t* getDisplay();
 
+    private:
         // Standard Chip-8 instructions
         void CLS();
         void RET();
@@ -59,7 +60,6 @@ class CPU
         void LD_I_Vx(uint8_t Vx);
         void LD_Vx_I(uint8_t Vx);
 
-    private:
         uint8_t registers[16];      // 16 8-bit general purpose registers
         uint16_t I;                // 16-bit register called I
         uint8_t memory[4096];       // 4KB of RAM

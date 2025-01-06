@@ -90,10 +90,6 @@ void CPU::cycle()
     // Fetch instruction from memory
     // Merges the next 2 bytes together to form the opcode
     opcode = memory[pc] << 8 | memory[pc+1];
-
-    cout << "Opcode: " << hex << opcode << " Program Counter: " << dec << pc << endl;
-    cout << "MSB: " << hex << ( ( opcode & 0XF000 ) >> 12 ) << " x: " << hex << ( ( opcode & 0x0F00 ) >> 8) << " kk: " << hex << ( opcode & 0x00FF ) << endl;
-    
     pc += 2;
 
     uint8_t Vx = ( opcode & 0x0F00 ) >> 8;
@@ -294,7 +290,7 @@ void CPU::cycle()
 void CPU::setKey(int k, int p)
 {
     keys[k] = p;
-}
+ }
 
 uint32_t* CPU::getDisplay()
 {

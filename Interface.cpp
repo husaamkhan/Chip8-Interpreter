@@ -59,19 +59,19 @@ bool Interface::getInput(int& k, int& p)
     // Keybind layout is set to resemble the CHIP-8 hexadecimal keypad using the left side of the keyboard
     switch( event.key.keysym.scancode )
     {
-        case SDL_SCANCODE_1: // 1: 1
+        case SDL_SCANCODE_X: // X: 0
             k = 0;
             break;
         
-        case SDL_SCANCODE_2: // 2: 2
+        case SDL_SCANCODE_1: // 1: 1
             k = 1;
             break;
         
-        case SDL_SCANCODE_3: // 3 : 3
+        case SDL_SCANCODE_2: // 2: 2
             k = 2;
             break;
         
-        case SDL_SCANCODE_4: // 4: C
+        case SDL_SCANCODE_3: // 3: 3
             k = 3;
             break;
         
@@ -87,35 +87,35 @@ bool Interface::getInput(int& k, int& p)
             k = 6;
             break;
         
-        case SDL_SCANCODE_R: // R: D
+        case SDL_SCANCODE_A: // A: 7
             k = 7;
             break;
         
-        case SDL_SCANCODE_A: // A: 7
+        case SDL_SCANCODE_S: // S: 8
             k = 8;
             break;
         
-        case SDL_SCANCODE_S: // S: 8
+        case SDL_SCANCODE_D: // D: 9
             k = 9;
             break;
         
-        case SDL_SCANCODE_D: // D: 9
+        case SDL_SCANCODE_Z: // Z: A
             k = 10;
             break;
         
-        case SDL_SCANCODE_F: // F: E
+        case SDL_SCANCODE_C: // C: B
             k = 11;
             break;
         
-        case SDL_SCANCODE_Z: // Z: A
+        case SDL_SCANCODE_4: // 4: C
             k = 12;
             break;
         
-        case SDL_SCANCODE_X: // X: 0
+        case SDL_SCANCODE_R: // R: D
             k = 13;
             break;
         
-        case SDL_SCANCODE_C: // C: B
+        case SDL_SCANCODE_F: // F: E
             k = 14;
             break;
         

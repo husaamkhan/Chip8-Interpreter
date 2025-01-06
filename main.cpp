@@ -40,6 +40,8 @@ int main(int argc, char* argv[])
         if ( !( k == -1 || p == -1 ) ) 
         {
             cpu->setKey(k, p);
+            k = -1;
+            p  = -1;
         }
 
         // Emulator runs at 30hz, so it waits until 0.033 seconds passes before performing a cpu cycle
@@ -49,15 +51,6 @@ int main(int argc, char* argv[])
             cpu->cycle();
             interface->refreshDisplay(cpu->getDisplay());
         }
-
-        // cout << "Continue? (Y/N): ";
-        // cin >> input;
-        // cout << endl;
-
-        // if ( input.compare("N") == 0 )
-        // {
-        //     running = false;
-        // }
     }
 
     delete cpu;
