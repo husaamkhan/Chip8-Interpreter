@@ -432,16 +432,8 @@ void CPU::SHR_Vx(uint8_t Vx)
 // Set Vx = Vy - Vx, set VF = NOT borrow
 void CPU::SUBN_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
-    if ( registers[Vx] < registers[Vy] )
-    {
-        registers[0xF000] = 1;
-    }
-    else
-    {
-        registers[0xF000] = 0;
-    }
-
     registers[Vx] = registers[Vy] - registers[Vx];
+    registers[0xF] = registers[Vx] <= registers[Vy];
 }
 
 // Set Vx = Vx SHL 1
