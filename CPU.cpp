@@ -423,8 +423,10 @@ void CPU::SUB_Vx_Vy(uint8_t Vx, uint8_t Vy)
 // Set Vx = Vx SHR 1
 void CPU::SHR_Vx(uint8_t Vx)
 {
-    registers[0xF000] = registers[Vx] & 0x1;
+    // cout << "Vx: " << Vx << " Vx & 0x0001: " << (Vx & 0x0001) << endl;
+    // exit(0);
     registers[Vx] = registers[Vx] / 2;
+    registers[0xF] = registers[Vx] & 0x0001;
 }
 
 // Set Vx = Vy - Vx, set VF = NOT borrow
