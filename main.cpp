@@ -1,10 +1,12 @@
 #include "CPU.h"
 #include "Interface.h"
-#include <ctime>
+#include <chrono>
+#include <thread>
 #include <stdlib.h>
 
 #include <iostream>
 using namespace std;
+using namespace chrono;
 
 int main(int argc, char* argv[])
 {
@@ -19,13 +21,12 @@ int main(int argc, char* argv[])
     Interface* interface = new Interface();
     interface->initialize(argv[2], 64*10, 32*10, 64, 32);
 
-    double delay = 1 / stoi(argv[1]);
+    auto delay = duration<double>(1 / stod(argv[1]));
 
     bool running = true;
 
-    time_t current_time;
-    time_t last_time;
-    time(&last_time);
+    auto last_time = high_resolution_clock::now();
+
     int k = -1;
     int p = -1;
 
@@ -45,9 +46,10 @@ int main(int argc, char* argv[])
         }
 
         // Runs cycle based on the inputted frequency
-        time(&current_time);
-        if ( running && difftime(current_time, last_time) >= delay )
+        auto current_time = high_resolution_clock::now();
+        if ( running && ( duration_cast<duration<double>>(current_time - last_time) > delay ) )
         {
+            last_time = high_resolution_clock::now();
             cpu->cycle();
             interface->refreshDisplay(cpu->getDisplay());
         }
