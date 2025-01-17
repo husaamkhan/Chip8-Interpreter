@@ -74,7 +74,7 @@ class CPU
 
         const unsigned int START_ADDR = 0x200;  // Start of most Chip-8 programs
         const unsigned int FONT_ADDR = 0x00;    // Start of font set
-        const unsigned int FONT_SIZE = 80;      // 16 total characters, each represented with 5 bytes
+        static const unsigned int FONT_SIZE = 80;      // 16 total characters, each represented with 5 bytes
 };
 
 #endif // CPU_H

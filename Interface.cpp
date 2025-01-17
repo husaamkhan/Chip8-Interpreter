@@ -4,7 +4,11 @@
 using namespace std;
 
 Interface::Interface()
-{}
+{
+    window = nullptr;
+    renderer = nullptr;
+    texture = nullptr;
+}
 
 Interface::~Interface()
 {

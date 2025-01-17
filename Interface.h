@@ -6,7 +6,7 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
-#include <SDL2/SDL.h> // Low-level Interface library
+#include <SDL.h> // Low-level Interface library
 
 class Interface
 {
