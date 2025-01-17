@@ -515,7 +515,6 @@ void CPU::DRW_Vx_Vy_NIBBLE(uint8_t Vx, uint8_t Vy)
 // Skip next instruction if key with the value of Vx is pressed
 void CPU::SKP_Vx(uint8_t Vx)
 {
-    cout << "Checking for key press" << endl;
     if ( keys[registers[Vx]] )
     {
         pc += 2;
@@ -525,7 +524,6 @@ void CPU::SKP_Vx(uint8_t Vx)
 // Skip next instruction if key with the value of Vx is not pressed
 void CPU::SKNP_Vx(uint8_t Vx)
 {
-    cout << "Checking for key not pressed" << endl;
     if ( !keys[registers[Vx]] )
     {
         pc += 2;

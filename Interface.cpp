@@ -5,9 +5,9 @@ using namespace std;
 
 Interface::Interface()
 {
-    window = nullptr;
+    /*window = nullptr;
     renderer = nullptr;
-    texture = nullptr;
+    texture = nullptr;*/
 }
 
 Interface::~Interface()

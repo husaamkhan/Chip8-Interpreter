@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
     Interface* interface = new Interface();
     interface->initialize(argv[2], 64*10, 32*10, 64, 32);
 
-    auto delay = duration<double>(1 / stod(argv[1]));
+    int delay = stoi(argv[1]);
 
     bool running = true;
 
@@ -48,10 +48,11 @@ int main(int argc, char* argv[])
 
         // Runs cycle based on the inputted frequency
         auto current_time = high_resolution_clock::now();
-        if ( running && ( duration_cast<duration<double>>(current_time - last_time) > delay ) )
-        {
-            last_time = high_resolution_clock::now();
+        float delta = std::chrono::duration<float, std::chrono::milliseconds::period>(current_time - last_time).count();
+        if ( delta >= stoi(argv[1]) )
+        {            
             cpu->cycle();
+            last_time = high_resolution_clock::now();
             interface->refreshDisplay(cpu->getDisplay());
         }
     }
