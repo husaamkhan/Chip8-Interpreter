@@ -61,9 +61,9 @@ bool CPU::loadRom(char const* f)
 {
     ifstream file(f, ios::ate | ios::binary);
 
-    if ( file.bad() )
+    if ( !file.is_open() )
     {
-        cout << "Couldn't read file: " << f;
+        cout << "Couldn't open file: " << f;
         return false;
     }
 
@@ -282,7 +282,6 @@ void CPU::cycle()
         
         default:
             cout << "Error reading opcode: " << opcode << endl;
-            cout << "Failed at first default" << endl;
             break;
     }
 
@@ -516,6 +515,7 @@ void CPU::DRW_Vx_Vy_NIBBLE(uint8_t Vx, uint8_t Vy)
 // Skip next instruction if key with the value of Vx is pressed
 void CPU::SKP_Vx(uint8_t Vx)
 {
+    cout << "Checking for key press" << endl;
     if ( keys[registers[Vx]] )
     {
         pc += 2;
@@ -525,6 +525,7 @@ void CPU::SKP_Vx(uint8_t Vx)
 // Skip next instruction if key with the value of Vx is not pressed
 void CPU::SKNP_Vx(uint8_t Vx)
 {
+    cout << "Checking for key not pressed" << endl;
     if ( !keys[registers[Vx]] )
     {
         pc += 2;
