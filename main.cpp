@@ -11,53 +11,64 @@ using namespace chrono;
 
 int main(int argc, char* argv[])
 {
-    CPU* cpu = new CPU();
-    bool success = cpu->loadRom(argv[2]);
-    
-    if ( !success )
+    if (argc < 3)
+    {
+        std::cerr << "Usage: ./chip8.exe <delay> <rom_file>" << endl;
+    }
+
+    auto cpu = std::make_unique<CPU>();
+    if ( !cpu->loadRom(argv[2]))
     {
         return 0;
     }
 
-    Interface* interface = new Interface();
+    auto interface = std::make_unique<Interface>();
     interface->initialize(argv[2], 64*10, 32*10, 64, 32);
 
-    int delay = stoi(argv[1]);
+    // Takes cpu cycle speed in Hz and converts to cycle length in milliseconds
+    int input = stoi(argv[1]);
+    float cycle_length = 1000 / input;
 
     bool running = true;
 
-    auto last_time = high_resolution_clock::now();
+    using clock = std::chrono::high_resolution_clock;
+    auto last_time = clock::now();
+
+    float acc = 0.0f;
 
     int k = -1;
     int p = -1;
 
-    string input;
-
-    while ( running ) // Emulation loop
+    while (running)
     {
-        // Get user input, and update running flag based on whether or not user chooses to quit
+        auto current_time = clock::now();
+        float delta = std::chrono::duration<float, std::chrono::milliseconds::period>(current_time - last_time).count();
+        if (delta > 100.0f)
+        {
+            delta = 100.0f;
+        }
+
+        last_time = current_time;
+        acc += delta;
+
         running = !interface->getInput(k, p);
 
-        // If a key was pressed or release, set that key to pressed/released in cpu
-        if ( !( k == -1 || p == -1 ) ) 
+        if ( !( k == -1 || p == -1 ) )
         {
             cpu->setKey(k, p);
             k = -1;
-            p  = -1;
+            p = -1;
         }
 
-        // Runs cycle based on the inputted frequency
-        auto current_time = high_resolution_clock::now();
-        float delta = std::chrono::duration<float, std::chrono::milliseconds::period>(current_time - last_time).count();
-        if ( delta >= stoi(argv[1]) )
-        {            
+        while (acc >= cycle_length)
+        {
             cpu->cycle();
-            last_time = high_resolution_clock::now();
-            interface->refreshDisplay(cpu->getDisplay());
+            acc -= cycle_length;
         }
+
+        interface->refreshDisplay(cpu->getDisplay());
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
-    delete cpu;
-    delete interface;
     return 0;
 }

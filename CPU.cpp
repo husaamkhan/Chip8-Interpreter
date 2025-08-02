@@ -499,11 +499,11 @@ void CPU::DRW_Vx_Vy_NIBBLE(uint8_t Vx, uint8_t Vy)
                 pixel ^= 0xFFFFFFFF;
                 if ( display[d] == 0xFFFFFFFFF )
                 {
-                    registers[0xF000] = 1;
+                    registers[0xF] = 1;
                 }
                 else
                 {
-                    registers[0xF000] = 0;
+                    registers[0xF] = 0;
                 }
 
                 display[d] = pixel;
