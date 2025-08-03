@@ -4,23 +4,73 @@
 using namespace std;
 
 Interface::Interface()
-{}
+{
+    initialized = false;
+    remaining_samples = 0;
+    audio_phase = 0.0;
+}
 
 Interface::~Interface()
 {
-    SDL_DestroyTexture(texture);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+    if (initialized)
+    {
+        SDL_DestroyTexture(texture);
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        SDL_CloseAudio();
+        SDL_Quit();
+    }
 }
 
-void Interface::initialize(char* title, int w_window, int h_window, int w_texture, int h_texture)
+bool Interface::initialize(char* title, int w_window, int h_window, int w_texture, int h_texture)
 {
-    SDL_Init(SDL_INIT_VIDEO);
+    if ( SDL_Init(SDL_INIT_VIDEO || SDL_INIT_AUDIO) < 0 ) {
+        cerr << "Error initializing SDL: " << SDL_GetError() << endl;
+        return false;
+    }
 
     window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w_window, h_window, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, w_texture, h_texture);
+    
+    audio_spec.freq = SAMPLE_RATE;
+    audio_spec.channels = CHANNELS;
+    audio_spec.samples = SAMPLES;
+    audio_spec.format = AUDIO_S16SYS;
+    audio_spec.userdata = this;
+    audio_spec.callback = Interface::generateAudioSamples;
+
+    if (SDL_OpenAudio(&audio_spec, nullptr) < 0)
+    {
+        cerr << "Failed to open SDL audio: " << SDL_GetError() << endl;
+        return false;
+    }
+
+    initialized = true;
+    return true;
+}
+
+void Interface::generateAudioSamples(void* userdata, Uint8* stream, int len)
+{
+    Interface* self = static_cast<Interface*>(userdata);
+    Sint16* buffer = (Sint16*)stream;
+    int length = len / sizeof(Sint16);
+
+    for (int i = 0; i < length; ++i)
+    {
+        buffer[i] = static_cast<Sint16>(AMPLITUDE * sin(self->audio_phase));
+        self->audio_phase += 2.0 * M_PI * FREQUENCY / SAMPLE_RATE;
+    }
+}
+
+void Interface::playAudio()
+{
+    SDL_PauseAudio(0);
+}
+
+void Interface::stopAudio()
+{
+    SDL_PauseAudio(1);
 }
 
 void Interface::refreshDisplay(void* pixels)

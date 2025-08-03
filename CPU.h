@@ -22,6 +22,7 @@ class CPU
         void cycle();
         void setKey(int k, int p);
         uint32_t* getDisplay();
+        int getSoundTimer();
 
     private:
         // Standard Chip-8 instructions

@@ -306,6 +306,11 @@ uint32_t* CPU::getDisplay()
     return display;
 }
 
+int CPU::getSoundTimer()
+{
+    return st;
+}
+
 // Clears display
 void CPU::CLS()
 {

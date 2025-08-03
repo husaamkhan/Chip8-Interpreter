@@ -14,6 +14,7 @@ int main(int argc, char* argv[])
     if (argc < 3)
     {
         std::cerr << "Usage: ./chip8.exe <delay> <rom_file>" << endl;
+        return 0;
     }
 
     auto cpu = std::make_unique<CPU>();
@@ -23,7 +24,11 @@ int main(int argc, char* argv[])
     }
 
     auto interface = std::make_unique<Interface>();
-    interface->initialize(argv[2], 64*10, 32*10, 64, 32);
+    if (!interface->initialize(argv[2], 64 * 10, 32 * 10, 64, 32))
+    {
+        cerr << "Error initializing interface!" << endl;
+        return 0;
+    }
 
     // Takes cpu cycle speed in Hz and converts to cycle length in milliseconds
     int input = stoi(argv[1]);
@@ -41,6 +46,15 @@ int main(int argc, char* argv[])
 
     while (running)
     {
+        if (cpu->getSoundTimer() > 0)
+        {
+            interface->playAudio();
+        }
+        else
+        {
+            interface->stopAudio();
+        }
+
         auto current_time = clock::now();
         float delta = std::chrono::duration<float, std::chrono::milliseconds::period>(current_time - last_time).count();
         if (delta > 100.0f)
