@@ -11,6 +11,6 @@ This repository contains the source code for a CHIP-8 interpreter that can be us
 Executable is stored in /build/Release
 
 ## Usage
-The interpreter can run CHIP-8 ROMs downloaded off of the internet. You can run the ROM with the following command:
+The interpreter can run CHIP-8 ROMs downloaded off of the internet. You can run the ROM from a terminal with the following command:
 ### Windows:
 `./chip8.exe <Speed> <Path to ROM>`
