@@ -8,7 +8,8 @@ This repository contains a CHIP-8 interpreter written in C++ with an SDL2-based 
 - Adjustable emulation speed
 
 ## Dependencies
-[SDL2](https://www.libsdl.org/), a cross-platform library providing access to audio, and input devices, and graphics through OpenGL and Direct3D.\n
+[SDL2](https://www.libsdl.org/), a cross-platform library providing access to audio, and input devices, and graphics through OpenGL and Direct3D.
+
 SDL2 must be installed on your system before compiling.
 
 ## Compilation
@@ -32,9 +33,10 @@ You can run any CHIP-8 ROM by passing the desired emulation speed and the path t
 ### Linux:
 `./chip8 <Speed> <Path-to-ROM>`
 
-- **<Speed>**: Controls the emulation cycle frequency
+- **<Speed>**: Controls the emulation cycle frequency in Hz. The original CHIP-8 processed around 500 instructions per second, so setting the frequency to 500 Hz works well for most programs.
 - **<Path-to-ROM>**: Path to your CHIP-8 program file (e.g., roms/PONG.ch8).
-- **Example**: ./chip8 200 roms/PONG.ch8
+#### Example
+`./chip8 500 roms/PONG.ch8`
 
 ### Key mapping
 The original CHIP-8 used a 16-key hexadecimal keypad arranged like this:
