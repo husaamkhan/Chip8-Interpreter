@@ -13,10 +13,10 @@ SDL2 must be installed on your system before compiling.
 
 ## Compilation
 ### Linux and Windows:
-`mkdir build
-cd build
-cmake ..
-cmake --build . --config Release`
+`mkdir build`
+`cd build`
+`cmake ..`
+`cmake --build . --config Release`
 
 Executable is stored in:
 - **Linux**: build/chip8
