@@ -33,8 +33,8 @@ You can run any CHIP-8 ROM by passing the desired emulation speed and the path t
 ### Linux:
 `./chip8 <Speed> <Path-to-ROM>`
 
-- **<Speed>**: Controls the emulation cycle frequency in Hz. The original CHIP-8 processed around 500 instructions per second, so setting the frequency to 500 Hz works well for most programs.
-- **<Path-to-ROM>**: Path to your CHIP-8 program file (e.g., roms/PONG.ch8).
+- **Speed**: Controls the emulation cycle frequency in Hz. The original CHIP-8 processed around 500 instructions per second, so setting the frequency to 500 Hz works well for most programs.
+- **Path-to-ROM**: Path to your CHIP-8 program file (e.g., roms/PONG.ch8).
 #### Example
 `./chip8 500 roms/PONG.ch8`
 
