@@ -1,6 +1,10 @@
 # Chip 8 Interpreter
 This repository contains the source code for a CHIP-8 interpreter that can be used to run any CHIP-8 program
 
+## Dependencies
+For its interface, this program uses SDL2, a cross-platform library for low level access to audio, input peripheral devices, and graphics hardware using OpenGL and Direct3D. 
+https://www.libsdl.org/
+
 ## Compilation
 ### Windows:
 1. mkdir build
