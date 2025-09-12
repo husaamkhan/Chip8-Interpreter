@@ -35,6 +35,7 @@ You can run any CHIP-8 ROM by passing the desired emulation speed and the path t
 
 ### Key mapping
 The original CHIP-8 used a 16-key hexadecimal keypad arranged like this:
+|     |     |     |     |
 |-----|-----|-----|-----|
 | **1** | **2** | **3** | **C** |
 | **4** | **5** | **6** | **D** |
@@ -42,7 +43,6 @@ The original CHIP-8 used a 16-key hexadecimal keypad arranged like this:
 | **A** | **0** | **B** | **F** |
 
 This interpreter maps them to your keyboard like this:
-
 |     |     |     |     |
 |-----|-----|-----|-----|
 | **1** | **2** | **3** | **4** |
